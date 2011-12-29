@@ -1,0 +1,14 @@
+apply plugin: 'idea'
+
+subprojects {
+    apply plugin: 'idea'
+
+    apply plugin: 'java'  
+
+    apply from: '../repositories.gradle'
+
+    dependencies {
+        compile 'org.springframework:spring-context:3.1.0.RELEASE'
+        testCompile group: 'junit', name: 'junit', version: '4.+'
+    }
+}
