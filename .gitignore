@@ -1,0 +1,11 @@
+# Idea ignores
+
+*.iml
+.idea/
+*.iws
+*.ipr
+
+# Gradle ignores
+
+.gradle/
+build/
