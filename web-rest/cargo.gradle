@@ -18,8 +18,10 @@ cargo {
     }
 
     local {
+        jvmArgs = "-banana -Xnoagent -Djava.compiler=NONE -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000"
         homeDir = file("$env.TOMCAT_HOME")
         log = file('build/tomcat.log')
+        output = file('build/output.log')
     }
 }
 
