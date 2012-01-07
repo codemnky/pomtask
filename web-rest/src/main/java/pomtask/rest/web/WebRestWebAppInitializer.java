@@ -10,7 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import java.util.Set;
 
-public class WebRestInitializer implements WebApplicationInitializer {
+public class WebRestWebAppInitializer implements WebApplicationInitializer {
     @java.lang.Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         // Create the 'root' Spring application context
