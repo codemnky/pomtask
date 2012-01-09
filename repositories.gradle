@@ -3,5 +3,6 @@ repositories {
 
     maven {
         url 'http://www.springsource.com/repository/'
+        url 'http://repo.springsource.org/libs-release-remote'
     }
 }
