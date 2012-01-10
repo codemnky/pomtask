@@ -1,2 +1,2 @@
-include "core", "web-ui", "web-rest"
+include "core", "web-ui", "web-rest", "johm"
 
