@@ -23,6 +23,24 @@ subprojects {
     }
 }
 
+project(':web-rest') {
+    dependencies {
+        compile project(':johm'), project(':core')
+    }
+}
+
+project(':core') {
+    dependencies {
+        compile project(':johm')
+    }
+}
+
+project(':web-ui') {
+    dependencies {
+        compile project(':johm'), project(':core')
+    }
+}
+
 idea {
     project {
         jdkName = '1.7'
