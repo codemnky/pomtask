@@ -15,9 +15,24 @@ public class AnnotationHelperTest {
         assertThat(fieldWithAnnotation.getName(), is("stringField"));
     }
 
+    @Test
+    public void findModelName() {
+        assertThat(AnnotationHelper.HELPER.findModelName(AnnotationTester.class), is("annotationTester"));
+    }
+
+    @Test
+    public void findModelName_NameAttribute() {
+        assertThat(AnnotationHelper.HELPER.findModelName(NameAnnotationTester.class), is("happy"));
+    }
+
+    @KeyValueModel
     public class AnnotationTester {
         @SuppressWarnings("UnusedDeclaration")
         @Key
         private String stringField;
+    }
+
+    @KeyValueModel(name = "happy")
+    public class NameAnnotationTester {
     }
 }
