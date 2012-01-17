@@ -4,7 +4,7 @@ import org.springframework.data.redis.connection.jedis.JedisConnection;
 
 import java.lang.reflect.Field;
 
-public class AttributeModel extends Property {
+public class AttributeModel extends FieldModel {
     public AttributeModel(MetaModel model, Field field) {
         super(model, field);
     }

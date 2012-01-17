@@ -6,13 +6,13 @@ import org.springframework.data.redis.connection.jedis.JedisConnection;
 
 import java.lang.reflect.Field;
 
-public abstract class Property {
+public abstract class FieldModel {
     @VisibleForTesting
     final Field field;
     @VisibleForTesting
     final MetaModel model;
 
-    protected Property(MetaModel model, Field field) {
+    protected FieldModel(MetaModel model, Field field) {
         this.field = field;
         field.setAccessible(true);
         this.model = model;

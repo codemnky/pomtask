@@ -6,7 +6,7 @@ import pomtask.core.mapper.exception.KeyValueMappingException;
 
 import java.lang.reflect.Field;
 
-public class KeyModel extends Property {
+public class KeyModel extends FieldModel {
     public KeyModel(MetaModel model, Field keyField) {
         super(model, keyField);
         this.field.setAccessible(true);
@@ -29,7 +29,7 @@ public class KeyModel extends Property {
         try {
             Object value = field.get(obj);
             if (value == null) {
-                throw new KeyValueMappingException("@Key properties may never be null.");
+                throw new KeyValueMappingException("@Key fields may never be null.");
             }
             return value;
         } catch (IllegalAccessException e) {

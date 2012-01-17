@@ -53,7 +53,7 @@ public class MetaModelTest {
     public void addProperty_UnannotatedIsAttribute() throws NoSuchFieldException {
         Field unannotatedField = DummyModel.class.getDeclaredField("stringField");
 
-        assertThat(builder.properties.get(0), instanceOf(AttributeModel.class));
+        assertThat(builder.fields.get(0), instanceOf(AttributeModel.class));
     }
 
     //TODO:         if (field == null) {    throw new KeyValueMappingException(String.format("No KeyModel specified for metamodel (%s)", modelClass.getName())); }

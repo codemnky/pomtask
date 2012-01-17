@@ -10,15 +10,15 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsSame.sameInstance;
 import static org.junit.Assert.assertThat;
 
-public class PropertyTest {
+public class FieldModelTest {
     private MetaModel model = new MetaModel();
     private Field field;
-    private PropertyClass propertyClass;
+    private FieldModelClass propertyClass;
 
     @Before
     public void setUp() throws NoSuchFieldException {
-        field = PropertyClass.class.getDeclaredField("testField");
-        propertyClass = new PropertyClass(model, field);
+        field = FieldModelClass.class.getDeclaredField("testField");
+        propertyClass = new FieldModelClass(model, field);
     }
 
     @Test
@@ -32,10 +32,10 @@ public class PropertyTest {
         assertThat(propertyClass.fieldName(), is("testField"));
     }
 
-    private class PropertyClass extends Property {
+    private class FieldModelClass extends FieldModel {
         private String testField;
 
-        private PropertyClass(MetaModel model, Field field) {
+        private FieldModelClass(MetaModel model, Field field) {
             super(model, field);
         }
 

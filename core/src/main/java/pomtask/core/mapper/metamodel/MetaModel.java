@@ -15,7 +15,7 @@ public class MetaModel {
     @VisibleForTesting
     KeyModel key;
     @VisibleForTesting
-    List<Property> properties;
+    List<FieldModel> fields;
 
     public MetaModel() {
     }
