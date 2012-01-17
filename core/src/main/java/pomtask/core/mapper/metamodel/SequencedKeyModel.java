@@ -13,7 +13,7 @@ public class SequencedKeyModel extends KeyModel {
     }
 
     @Override
-    public Object valueForCreate(Object obj, JedisConnection connection) {
+    public Object create(Object obj, JedisConnection connection) {
         return sequenceModel.next(connection);
     }
 }

@@ -1,12 +1,25 @@
 package pomtask.core.mapper.metamodel;
 
 
+import com.google.common.annotations.VisibleForTesting;
 import org.springframework.data.redis.connection.jedis.JedisConnection;
 
-public interface Property {
-    String fieldName();
+import java.lang.reflect.Field;
 
-    Object valueForUpdate(Object obj, JedisConnection connection);
+public abstract class Property {
+    @VisibleForTesting
+    final Field field;
+    @VisibleForTesting
+    final MetaModel model;
 
-    Object valueForCreate(Object obj, JedisConnection connection);
+    protected Property(MetaModel model, Field field) {
+        this.field = field;
+        this.model = model;
+    }
+
+    public abstract String fieldName();
+
+    public abstract Object update(Object obj, JedisConnection connection);
+
+    public abstract Object create(Object obj, JedisConnection connection);
 }

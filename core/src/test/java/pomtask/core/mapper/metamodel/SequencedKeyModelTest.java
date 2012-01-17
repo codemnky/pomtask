@@ -10,6 +10,7 @@ import pomtask.core.mapper.annotation.Sequence;
 import java.lang.reflect.Field;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -17,34 +18,36 @@ import static org.mockito.Mockito.when;
 public class SequencedKeyModelTest {
     private JedisConnection mockConnection = mock(JedisConnection.class);
     private Field field;
+    private MetaModel model = new MetaModel();
 
     @Before
     public void setUp() throws Exception {
         field = DummyModel.class.getDeclaredField("sequenceKey");
+        model.modelName = "modelName";
     }
 
     @Test
     public void construct() throws NoSuchFieldException {
-        KeyModel keyModel = new KeyModel("modelName", field);
+        KeyModel keyModel = new KeyModel(model, field);
         SequenceModel sequenceModel = new SequenceModel("modelName", field);
 
         SequencedKeyModel sequencedKeyModel = new SequencedKeyModel(keyModel, sequenceModel);
 
         assertThat(sequencedKeyModel.sequenceModel, IsSame.sameInstance(sequenceModel));
-        assertThat(sequencedKeyModel.modelName, is("modelName"));
-        assertThat(sequencedKeyModel.keyField, is(field));
+        assertThat(sequencedKeyModel.model, sameInstance(model));
+        assertThat(sequencedKeyModel.field, is(field));
     }
 
     @Test
     public void valueForCreate() {
         when(mockConnection.incr("modelName:sequenceKey".getBytes())).thenReturn(1L);
 
-        KeyModel keyModel = new KeyModel("modelName", field);
+        KeyModel keyModel = new KeyModel(model, field);
         SequenceModel sequenceModel = new SequenceModel("modelName", field);
 
         SequencedKeyModel sequencedKeyModel = new SequencedKeyModel(keyModel, sequenceModel);
 
-        assertThat((Long) sequencedKeyModel.valueForCreate(new DummyModel(), mockConnection), is(1L));
+        assertThat((Long) sequencedKeyModel.create(new DummyModel(), mockConnection), is(1L));
     }
 
     @Test

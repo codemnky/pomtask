@@ -1,32 +1,24 @@
 package pomtask.core.mapper.metamodel;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import org.springframework.data.redis.connection.jedis.JedisConnection;
 import pomtask.core.mapper.exception.KeyValueMappingException;
 
 import java.lang.reflect.Field;
 
-public class KeyModel implements Property {
-    @VisibleForTesting
-    final Field keyField;
-    @VisibleForTesting
-    final String modelName;
-
-    public KeyModel(String modelName, Field keyField) {
-        this.modelName = modelName;
-        this.keyField = keyField;
-        this.keyField.setAccessible(true);
+public class KeyModel extends Property {
+    public KeyModel(MetaModel model, Field keyField) {
+        super(model, keyField);
+        this.field.setAccessible(true);
     }
 
     public KeyModel(KeyModel keyModel) {
-        this.keyField = keyModel.keyField;
-        this.modelName = keyModel.modelName;
+        super(keyModel.model, keyModel.field);
     }
 
     public String key(Object object) {
         try {
-            return String.format("%s:%s", modelName, keyField.get(object));
+            return String.format("%s:%s", model.modelName, field.get(object));
         } catch (IllegalAccessException e) {
             throw Throwables.propagate(e);
         }
@@ -34,15 +26,15 @@ public class KeyModel implements Property {
 
     @Override
     public String fieldName() {
-        return keyField.getName();
+        return field.getName();
     }
 
     @Override
-    public Object valueForUpdate(Object obj, JedisConnection connection) {
+    public Object update(Object obj, JedisConnection connection) {
         try {
-            Object value = keyField.get(obj);
+            Object value = field.get(obj);
             if (value == null) {
-                throw new KeyValueMappingException("@Key fields may never be null.");
+                throw new KeyValueMappingException("@Key properties may never be null.");
             }
             return value;
         } catch (IllegalAccessException e) {
@@ -51,7 +43,7 @@ public class KeyModel implements Property {
     }
 
     @Override
-    public Object valueForCreate(Object obj, JedisConnection connection) {
-        return valueForUpdate(obj, connection);
+    public Object create(Object obj, JedisConnection connection) {
+        return update(obj, connection);
     }
 }

@@ -7,17 +7,20 @@ import pomtask.core.mapper.annotation.Sequence;
 import pomtask.core.mapper.exception.KeyValueMappingException;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
-public class MetaModelBuilder {
+public class MetaModel {
     @VisibleForTesting
     String modelName;
     @VisibleForTesting
     KeyModel key;
+    @VisibleForTesting
+    List<Property> properties;
 
-    public MetaModelBuilder() {
+    public MetaModel() {
     }
 
-    public void addProperty(Field field) {
+    public void addField(Field field) {
         if (field.isAnnotationPresent(Key.class)) {
             key = buildKey(modelName, field);
         }
@@ -27,7 +30,7 @@ public class MetaModelBuilder {
         if (key != null) {
             throw new KeyValueMappingException("Model class may only contain one field annotated with @Key.");
         }
-        KeyModel keyModel = new KeyModel(modelName, field);
+        KeyModel keyModel = new KeyModel(this, field);
         SequenceModel sequenceModel;
         if (field.isAnnotationPresent(Sequence.class)) {
             sequenceModel = new SequenceModel(modelName, field);
@@ -35,5 +38,4 @@ public class MetaModelBuilder {
         }
         return keyModel;
     }
-
 }
