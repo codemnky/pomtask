@@ -1,5 +1,10 @@
 package pomtask.core.mapper.metamodel;
 
-public class AttributeModelTest {
+import org.junit.Test;
 
+public class AttributeModelTest {
+    @Test
+    public void nothing() {
+
+    }
 }

@@ -10,11 +10,6 @@ public class AttributeModel extends Property {
     }
 
     @Override
-    public String fieldName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
     public Object update(Object obj, JedisConnection connection) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }

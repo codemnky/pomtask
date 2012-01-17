@@ -25,11 +25,6 @@ public class KeyModel extends Property {
     }
 
     @Override
-    public String fieldName() {
-        return field.getName();
-    }
-
-    @Override
     public Object update(Object obj, JedisConnection connection) {
         try {
             Object value = field.get(obj);

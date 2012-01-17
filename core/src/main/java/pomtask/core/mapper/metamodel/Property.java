@@ -14,10 +14,13 @@ public abstract class Property {
 
     protected Property(MetaModel model, Field field) {
         this.field = field;
+        field.setAccessible(true);
         this.model = model;
     }
 
-    public abstract String fieldName();
+    public final String fieldName() {
+        return field.getName();
+    }
 
     public abstract Object update(Object obj, JedisConnection connection);
 
