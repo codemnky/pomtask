@@ -40,6 +40,12 @@ project(':web-ui') {
     }
 }
 
+project(':core') {
+    dependencies {
+        compile project(':jrom')
+    }
+}
+
 idea {
     project {
         jdkName = '1.7'
