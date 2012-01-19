@@ -3,8 +3,8 @@ package pomtask.core.mapper.metamodel;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import org.springframework.data.redis.connection.jedis.JedisConnection;
 import pomtask.core.mapper.MappingLifecycle;
+import pomtask.core.mapper.StringJedisConnection;
 import pomtask.core.mapper.annotation.Sequence;
 import pomtask.core.mapper.exception.KeyValueMappingException;
 
@@ -27,8 +27,8 @@ public class SequenceModel {
         this.sequenceKeyName = findKeyName(field, annotation, modelName);
     }
 
-    public long next(JedisConnection connection) {
-        return connection.incr(sequenceKeyName.getBytes());
+    public long next(StringJedisConnection connection) {
+        return connection.incr(sequenceKeyName);
     }
 
     public ImmutableSet<MappingLifecycle> getMappingLifecycles() {

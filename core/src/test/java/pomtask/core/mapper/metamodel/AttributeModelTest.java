@@ -3,7 +3,8 @@ package pomtask.core.mapper.metamodel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.springframework.data.redis.connection.jedis.JedisConnection;
+import pomtask.core.mapper.StringJedisConnection;
+import pomtask.core.mapper.annotation.Attribute;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -12,7 +13,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class AttributeModelTest {
-    private JedisConnection connection = mock(JedisConnection.class);
+    private StringJedisConnection connection = mock(StringJedisConnection.class);
     private MetaModel model = new MetaModel();
 
     @Before
@@ -30,7 +31,7 @@ public class AttributeModelTest {
 
         assertThat((String) attribute.update(dummyModel, connection), is("help"));
 
-        verify(connection).hSet("modelName".getBytes(), "testField".getBytes(), "help".getBytes());
+        verify(connection).hSet("modelName", "testField", "help");
     }
 
     @Test
@@ -40,9 +41,9 @@ public class AttributeModelTest {
         DummyModel dummyModel = new DummyModel();
         dummyModel.testField = null;
 
-        assertThat((String) attribute.update(dummyModel, connection), is(nullValue()));
+        assertThat(attribute.update(dummyModel, connection), is(nullValue()));
 
-        verify(connection, never()).hSet(eq("modelName".getBytes()), eq("testField".getBytes()), Matchers.<byte[]>any());
+        verify(connection, never()).hSet(eq("modelName"), eq("testField"), Matchers.<String>any());
     }
 
     @Test
@@ -54,10 +55,24 @@ public class AttributeModelTest {
 
         assertThat((String) attribute.create(dummyModel, connection), is("help"));
 
-        verify(connection).hSet("modelName".getBytes(), "testField".getBytes(), "help".getBytes());
+        verify(connection).hSet("modelName", "testField", "help");
+    }
+
+    @Test
+    public void update_NamedAttribute() throws NoSuchFieldException {
+        AttributeModel attribute = new AttributeModel(model, DummyModel.class.getDeclaredField("namedField"));
+
+        DummyModel dummyModel = new DummyModel();
+        dummyModel.namedField = 5;
+
+        assertThat((Integer) attribute.update(dummyModel, connection), is(5));
+
+        verify(connection).hSet("modelName", "newName", "5");
     }
 
     private class DummyModel {
         private String testField;
+        @Attribute(name = "newName")
+        private int namedField;
     }
 }

@@ -3,15 +3,15 @@ package pomtask.core.mapper.metamodel;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.data.redis.connection.jedis.JedisConnection;
 import pomtask.core.mapper.MappingLifecycle;
+import pomtask.core.mapper.StringJedisConnection;
 import pomtask.core.mapper.annotation.KeyValueModel;
 import pomtask.core.mapper.annotation.Sequence;
 
 import static org.junit.Assert.assertThat;
 
 public class SequenceModelTest {
-    private JedisConnection connection = Mockito.mock(JedisConnection.class);
+    private StringJedisConnection connection = Mockito.mock(StringJedisConnection.class);
 
     @Test
     public void incrementKeyName() throws NoSuchFieldException {
@@ -29,7 +29,7 @@ public class SequenceModelTest {
 
     @Test
     public void next() throws NoSuchFieldException {
-        Mockito.when(connection.incr("modelName:sequenceField".getBytes())).thenReturn(1L);
+        Mockito.when(connection.incr("modelName:sequenceField")).thenReturn(1L);
 
         SequenceModel sequence = new SequenceModel("modelName", DummySequenceModel.class.getDeclaredField("sequenceField"));
 

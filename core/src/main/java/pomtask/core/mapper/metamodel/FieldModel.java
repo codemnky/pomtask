@@ -2,7 +2,7 @@ package pomtask.core.mapper.metamodel;
 
 
 import com.google.common.annotations.VisibleForTesting;
-import org.springframework.data.redis.connection.jedis.JedisConnection;
+import pomtask.core.mapper.StringJedisConnection;
 
 import java.lang.reflect.Field;
 
@@ -18,11 +18,11 @@ public abstract class FieldModel {
         this.model = model;
     }
 
-    public final String fieldName() {
+    public String fieldName() {
         return field.getName();
     }
 
-    public abstract Object update(Object obj, JedisConnection connection);
+    public abstract Object update(Object obj, StringJedisConnection conn);
 
-    public abstract Object create(Object obj, JedisConnection connection);
+    public abstract Object create(Object obj, StringJedisConnection connection);
 }

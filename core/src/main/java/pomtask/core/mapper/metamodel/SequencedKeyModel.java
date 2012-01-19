@@ -1,7 +1,7 @@
 package pomtask.core.mapper.metamodel;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.springframework.data.redis.connection.jedis.JedisConnection;
+import pomtask.core.mapper.StringJedisConnection;
 
 public class SequencedKeyModel extends KeyModel {
     @VisibleForTesting
@@ -13,7 +13,7 @@ public class SequencedKeyModel extends KeyModel {
     }
 
     @Override
-    public Object create(Object obj, JedisConnection connection) {
+    public Object create(Object obj, StringJedisConnection connection) {
         return sequenceModel.next(connection);
     }
 }

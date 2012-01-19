@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.springframework.data.redis.connection.jedis.JedisConnection;
+import pomtask.core.mapper.StringJedisConnection;
 import pomtask.core.mapper.annotation.KeyValueModel;
 import pomtask.core.mapper.exception.KeyValueMappingException;
 
@@ -18,7 +18,7 @@ public class KeyModelTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private final JedisConnection mockConnection = mock(JedisConnection.class);
+    private final StringJedisConnection mockConnection = mock(StringJedisConnection.class);
     private final MetaModel model = new MetaModel();
     private Field keyField;
 

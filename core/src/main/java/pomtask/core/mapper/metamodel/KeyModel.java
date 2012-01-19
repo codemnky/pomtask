@@ -1,7 +1,7 @@
 package pomtask.core.mapper.metamodel;
 
 import com.google.common.base.Throwables;
-import org.springframework.data.redis.connection.jedis.JedisConnection;
+import pomtask.core.mapper.StringJedisConnection;
 import pomtask.core.mapper.exception.KeyValueMappingException;
 
 import java.lang.reflect.Field;
@@ -25,7 +25,7 @@ public class KeyModel extends FieldModel {
     }
 
     @Override
-    public Object update(Object obj, JedisConnection connection) {
+    public Object update(Object obj, StringJedisConnection connection) {
         try {
             Object value = field.get(obj);
             if (value == null) {
@@ -38,7 +38,7 @@ public class KeyModel extends FieldModel {
     }
 
     @Override
-    public Object create(Object obj, JedisConnection connection) {
+    public Object create(Object obj, StringJedisConnection connection) {
         return update(obj, connection);
     }
 }

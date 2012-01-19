@@ -3,7 +3,7 @@ package pomtask.core.mapper.metamodel;
 import org.hamcrest.core.IsSame;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.data.redis.connection.jedis.JedisConnection;
+import pomtask.core.mapper.StringJedisConnection;
 import pomtask.core.mapper.annotation.Key;
 import pomtask.core.mapper.annotation.Sequence;
 
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class SequencedKeyModelTest {
-    private JedisConnection mockConnection = mock(JedisConnection.class);
+    private StringJedisConnection mockConnection = mock(StringJedisConnection.class);
     private Field field;
     private MetaModel model = new MetaModel();
 
@@ -40,7 +40,7 @@ public class SequencedKeyModelTest {
 
     @Test
     public void valueForCreate() {
-        when(mockConnection.incr("modelName:sequenceKey".getBytes())).thenReturn(1L);
+        when(mockConnection.incr("modelName:sequenceKey")).thenReturn(1L);
 
         KeyModel keyModel = new KeyModel(model, field);
         SequenceModel sequenceModel = new SequenceModel("modelName", field);
