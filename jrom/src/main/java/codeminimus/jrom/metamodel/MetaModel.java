@@ -66,11 +66,11 @@ public class MetaModel {
     }
 
     public FieldModel buildFieldModel(Field field) {
-        FieldModel fieldModel = null;
+        FieldModel fieldModel;
         if (field.isAnnotationPresent(Key.class)) {
             fieldModel = buildKey(modelName, field);
         } else if (field.isAnnotationPresent(Unmapped.class)) {
-            //ignored
+            fieldModel = null;
         } else {
             fieldModel = buildAttribute(field);
         }
