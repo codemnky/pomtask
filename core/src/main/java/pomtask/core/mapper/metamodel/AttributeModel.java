@@ -23,7 +23,7 @@ public class AttributeModel extends FieldModel {
 
             if (fieldValue != null) {
                 String storeValue = ConvertUtils.convert(fieldValue);
-                conn.hSet(model.getModelName(), fieldName(), storeValue);
+                conn.hSet(model.getKey(obj), fieldName(), storeValue);
             }
 
             return fieldValue;

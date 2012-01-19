@@ -42,4 +42,8 @@ public class MetaModel {
     public String getModelName() {
         return modelName;
     }
+
+    public String getKey(Object obj) {
+        return key.key(obj);
+    }
 }

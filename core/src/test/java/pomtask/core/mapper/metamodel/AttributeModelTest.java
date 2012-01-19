@@ -13,13 +13,13 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class AttributeModelTest {
+    public static final String MODEL_KEY = "modelKey";
     private StringJedisConnection connection = mock(StringJedisConnection.class);
-    private MetaModel model = new MetaModel();
+    private MetaModel model = mock(MetaModel.class);
 
     @Before
     public void setUp() {
-        model.modelName = "modelName";
-        model.key = mock(KeyModel.class);
+        when(model.getKey(anyObject())).thenReturn(MODEL_KEY);
     }
 
     @Test
@@ -31,7 +31,7 @@ public class AttributeModelTest {
 
         assertThat((String) attribute.update(dummyModel, connection), is("help"));
 
-        verify(connection).hSet("modelName", "testField", "help");
+        verify(connection).hSet(MODEL_KEY, "testField", "help");
     }
 
     @Test
@@ -55,7 +55,7 @@ public class AttributeModelTest {
 
         assertThat((String) attribute.create(dummyModel, connection), is("help"));
 
-        verify(connection).hSet("modelName", "testField", "help");
+        verify(connection).hSet(MODEL_KEY, "testField", "help");
     }
 
     @Test
@@ -67,7 +67,7 @@ public class AttributeModelTest {
 
         assertThat((Integer) attribute.update(dummyModel, connection), is(5));
 
-        verify(connection).hSet("modelName", "newName", "5");
+        verify(connection).hSet(MODEL_KEY, "newName", "5");
     }
 
     private class DummyModel {
