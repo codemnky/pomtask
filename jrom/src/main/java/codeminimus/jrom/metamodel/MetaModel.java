@@ -31,6 +31,10 @@ public class MetaModel {
     }
 
     public MetaModel(Class<?> modelClass) {
+        if (!modelClass.isAnnotationPresent(KeyValueModel.class)) {
+            throw new KeyValueMappingException(String.format("Not a model object: No %s annotation present on class.", KeyValueModel.class.getName()));
+        }
+
         modelName = findModelName(modelClass);
 
         List<FieldModel> fieldModels = buildFields(modelClass);

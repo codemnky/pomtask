@@ -34,18 +34,21 @@ public class MetaModelTest {
     public void construct_TwoKeys() throws NoSuchFieldException {
         thrown.expect(KeyValueMappingException.class);
 
-        MetaModel builder = new MetaModel(TwoKeyModel.class);
-
-        builder.buildFieldModel(DummyModel.class.getDeclaredField("key"));
+        new MetaModel(TwoKeyModel.class);
     }
 
     @Test
     public void construct_NoKey() throws NoSuchFieldException {
         thrown.expect(KeyValueMappingException.class);
 
-        MetaModel builder = new MetaModel(NoKeyModel.class);
+        new MetaModel(NoKeyModel.class);
+    }
 
-        builder.buildFieldModel(DummyModel.class.getDeclaredField("key"));
+    @Test
+    public void construct_NoModelAnnotation() {
+        thrown.expect(KeyValueMappingException.class);
+
+        new MetaModel(NoKeyValueModelAnnot.class);
     }
 
     @Test
@@ -117,6 +120,12 @@ public class MetaModelTest {
     @SuppressWarnings("UnusedDeclaration")
     @KeyValueModel
     public class NoKeyModel {
+        private int field;
+    }
+
+    public class NoKeyValueModelAnnot {
+        @Key
+        private int key;
         private int field;
     }
 }
