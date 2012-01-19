@@ -18,6 +18,7 @@ subprojects {
         compile 'com.google.guava:guava:11.0'
         compile 'javax.inject:javax.inject:1'
         compile 'org.apache.commons:commons-lang3:3.1'
+        compile 'commons-beanutils:commons-beanutils-core:1.8.3'
 
         compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.3'
 

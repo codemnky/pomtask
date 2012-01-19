@@ -38,4 +38,8 @@ public class MetaModel {
         }
         return keyModel;
     }
+
+    public String getModelName() {
+        return modelName;
+    }
 }
