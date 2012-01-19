@@ -3,6 +3,7 @@ package codeminimus.jrom.metamodel;
 
 import codeminimus.jrom.annotation.Key;
 import codeminimus.jrom.annotation.Sequence;
+import codeminimus.jrom.annotation.Unmapped;
 import codeminimus.jrom.exception.KeyValueMappingException;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -24,6 +25,8 @@ public class MetaModel {
     public void addField(Field field) {
         if (field.isAnnotationPresent(Key.class)) {
             key = buildKey(modelName, field);
+        } else if (field.isAnnotationPresent(Unmapped.class)) {
+            //ignored
         } else {
             fields.add(buildAttribute(field));
         }

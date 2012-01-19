@@ -2,6 +2,7 @@ package codeminimus.jrom.metamodel;
 
 import codeminimus.jrom.annotation.Key;
 import codeminimus.jrom.annotation.Sequence;
+import codeminimus.jrom.annotation.Unmapped;
 import codeminimus.jrom.exception.KeyValueMappingException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -11,6 +12,7 @@ import org.junit.rules.ExpectedException;
 import java.lang.reflect.Field;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -50,12 +52,21 @@ public class MetaModelTest {
     }
 
     @Test
-    public void addProperty_UnannotatedIsAttribute() throws NoSuchFieldException {
+    public void addField_UnannotatedIsAttribute() throws NoSuchFieldException {
         Field unannotatedField = DummyModel.class.getDeclaredField("stringField");
 
         builder.addField(unannotatedField);
 
         assertThat(builder.fields.get(0), instanceOf(AttributeModel.class));
+    }
+
+    @Test
+    public void addField_Transient() throws NoSuchFieldException {
+        Field transientField = DummyModel.class.getDeclaredField("transientField");
+
+        builder.addField(transientField);
+
+        assertThat(builder.fields.isEmpty(), is(true));
     }
 
     //TODO:         if (field == null) {    throw new KeyValueMappingException(String.format("No KeyModel specified for metamodel (%s)", modelClass.getName())); }
@@ -71,5 +82,8 @@ public class MetaModelTest {
         private int sequencedKey;
 
         private String stringField;
+
+        @Unmapped
+        private long transientField;
     }
 }
