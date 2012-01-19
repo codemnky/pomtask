@@ -1,10 +1,11 @@
 package codeminimus.jrom.metamodel;
 
 import codeminimus.jrom.annotation.Key;
+import codeminimus.jrom.annotation.KeyValueModel;
 import codeminimus.jrom.annotation.Sequence;
 import codeminimus.jrom.annotation.Unmapped;
 import codeminimus.jrom.exception.KeyValueMappingException;
-import org.junit.Before;
+import com.google.common.collect.ImmutableList;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -14,64 +15,72 @@ import java.lang.reflect.Field;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class MetaModelTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-    private final MetaModel builder = new MetaModel();
+    private final MetaModel builder = new MetaModel("modelName", null, ImmutableList.<FieldModel>of());
 
+    @Test
+    public void construct() {
+        MetaModel metaModel = new MetaModel(BasicModel.class);
 
-    @Before
-    public void setUp() {
-        builder.modelName = "test";
+        assertThat(metaModel.getModelName(), is("basicModel"));
+        assertThat(metaModel.key.fieldName(), is("key"));
+        assertThat(metaModel.fields.get(0).fieldName(), is("field"));
     }
 
     @Test
-    public void addField_Key() throws NoSuchFieldException {
-        builder.addField(DummyModel.class.getDeclaredField("key"));
-
-        assertThat(builder.key, instanceOf(KeyModel.class));
-    }
-
-    @Test
-    public void addField_Key_FailsWhenKeyAlreadySet() throws NoSuchFieldException {
+    public void construct_TwoKeys() throws NoSuchFieldException {
         thrown.expect(KeyValueMappingException.class);
 
-        MetaModel builder = new MetaModel();
-        builder.key = mock(KeyModel.class);
+        MetaModel builder = new MetaModel(TwoKeyModel.class);
 
-        builder.addField(DummyModel.class.getDeclaredField("key"));
+        builder.buildFieldModel(DummyModel.class.getDeclaredField("key"));
     }
 
     @Test
-    public void addField_SequencedKey() throws NoSuchFieldException {
-        builder.addField(DummyModel.class.getDeclaredField("sequencedKey"));
+    public void construct_NoKey() throws NoSuchFieldException {
+        thrown.expect(KeyValueMappingException.class);
 
-        assertThat(builder.key, instanceOf(SequencedKeyModel.class));
+        MetaModel builder = new MetaModel(NoKeyModel.class);
+
+        builder.buildFieldModel(DummyModel.class.getDeclaredField("key"));
     }
 
     @Test
-    public void addField_UnannotatedIsAttribute() throws NoSuchFieldException {
+    public void buildFieldModel_Key() throws NoSuchFieldException {
+        FieldModel fieldModel = builder.buildFieldModel(DummyModel.class.getDeclaredField("key"));
+
+        assertThat(fieldModel, instanceOf(KeyModel.class));
+    }
+
+    @Test
+    public void buildFieldModel_SequencedKey() throws NoSuchFieldException {
+        FieldModel fieldModel = builder.buildFieldModel(DummyModel.class.getDeclaredField("sequencedKey"));
+
+        assertThat(fieldModel, instanceOf(SequencedKeyModel.class));
+    }
+
+    @Test
+    public void buildFieldModel_UnannotatedIsAttribute() throws NoSuchFieldException {
         Field unannotatedField = DummyModel.class.getDeclaredField("stringField");
 
-        builder.addField(unannotatedField);
+        FieldModel fieldModel = builder.buildFieldModel(unannotatedField);
 
-        assertThat(builder.fields.get(0), instanceOf(AttributeModel.class));
+        assertThat(fieldModel, instanceOf(AttributeModel.class));
     }
 
     @Test
-    public void addField_Transient() throws NoSuchFieldException {
+    public void buildFieldModel_Transient() throws NoSuchFieldException {
         Field transientField = DummyModel.class.getDeclaredField("transientField");
 
-        builder.addField(transientField);
+        builder.buildFieldModel(transientField);
 
         assertThat(builder.fields.isEmpty(), is(true));
     }
 
-    //TODO:         if (field == null) {    throw new KeyValueMappingException(String.format("No KeyModel specified for metamodel (%s)", modelClass.getName())); }
-
-
+    @SuppressWarnings("UnusedDeclaration")
     public class DummyModel {
         @SuppressWarnings("UnusedDeclaration")
         @Key
@@ -85,5 +94,29 @@ public class MetaModelTest {
 
         @Unmapped
         private long transientField;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    @KeyValueModel
+    public class BasicModel {
+        @Key
+        private String key;
+        private int field;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    @KeyValueModel
+    public class TwoKeyModel {
+        @Key
+        private String key1;
+        @Key
+        private String key2;
+        private int field;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    @KeyValueModel
+    public class NoKeyModel {
+        private int field;
     }
 }

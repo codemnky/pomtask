@@ -3,6 +3,7 @@ package codeminimus.jrom.metamodel;
 import codeminimus.jrom.StringJedisConnection;
 import codeminimus.jrom.annotation.Key;
 import codeminimus.jrom.annotation.Sequence;
+import com.google.common.collect.ImmutableList;
 import org.hamcrest.core.IsSame;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,12 +19,11 @@ import static org.mockito.Mockito.when;
 public class SequencedKeyModelTest {
     private StringJedisConnection mockConnection = mock(StringJedisConnection.class);
     private Field field;
-    private MetaModel model = new MetaModel();
+    private MetaModel model = new MetaModel("modelName", null, ImmutableList.<FieldModel>of());
 
     @Before
     public void setUp() throws Exception {
         field = DummyModel.class.getDeclaredField("sequenceKey");
-        model.modelName = "modelName";
     }
 
     @Test

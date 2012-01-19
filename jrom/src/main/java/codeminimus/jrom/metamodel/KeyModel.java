@@ -18,7 +18,7 @@ public class KeyModel extends FieldModel {
 
     public String key(Object object) {
         try {
-            return String.format("%s:%s", model.modelName, field.get(object));
+            return String.format("%s:%s", model.getModelName(), field.get(object));
         } catch (IllegalAccessException e) {
             throw Throwables.propagate(e);
         }

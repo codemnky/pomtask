@@ -1,6 +1,7 @@
 package codeminimus.jrom.metamodel;
 
 import codeminimus.jrom.StringJedisConnection;
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,7 +12,7 @@ import static org.hamcrest.core.IsSame.sameInstance;
 import static org.junit.Assert.assertThat;
 
 public class FieldModelTest {
-    private MetaModel model = new MetaModel();
+    private MetaModel model = new MetaModel("modelName", null, ImmutableList.<FieldModel>of());
     private Field field;
     private FieldModelClass propertyClass;
 
@@ -32,6 +33,7 @@ public class FieldModelTest {
         assertThat(propertyClass.fieldName(), is("testField"));
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     private class FieldModelClass extends FieldModel {
         private String testField;
 
@@ -41,12 +43,12 @@ public class FieldModelTest {
 
         @Override
         public Object update(Object obj, StringJedisConnection connection) {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
+            return null;
         }
 
         @Override
         public Object create(Object obj, StringJedisConnection connection) {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
+            return null;
         }
     }
 }

@@ -3,6 +3,7 @@ package codeminimus.jrom.metamodel;
 import codeminimus.jrom.StringJedisConnection;
 import codeminimus.jrom.annotation.KeyValueModel;
 import codeminimus.jrom.exception.KeyValueMappingException;
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,12 +20,11 @@ public class KeyModelTest {
     public ExpectedException thrown = ExpectedException.none();
 
     private final StringJedisConnection mockConnection = mock(StringJedisConnection.class);
-    private final MetaModel model = new MetaModel();
+    private final MetaModel model = new MetaModel("modelName", null, ImmutableList.<FieldModel>of());
     private Field keyField;
 
     @Before
     public void setUp() throws NoSuchFieldException {
-        model.modelName = "modelName";
         keyField = StringKeyedType.class.getDeclaredField("key");
     }
 

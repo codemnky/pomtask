@@ -2,34 +2,79 @@ package codeminimus.jrom.metamodel;
 
 
 import codeminimus.jrom.annotation.Key;
+import codeminimus.jrom.annotation.KeyValueModel;
 import codeminimus.jrom.annotation.Sequence;
 import codeminimus.jrom.annotation.Unmapped;
 import codeminimus.jrom.exception.KeyValueMappingException;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MetaModel {
     @VisibleForTesting
-    String modelName;
+    final String modelName;
     @VisibleForTesting
-    KeyModel key;
+    final KeyModel key;
     @VisibleForTesting
-    List<FieldModel> fields = new ArrayList<FieldModel>();
+    final List<FieldModel> fields;
 
-    public MetaModel() {
+    @VisibleForTesting
+    MetaModel(String modelName, KeyModel keyModel, List<FieldModel> fieldModelList) {
+        this.modelName = modelName;
+        this.key = keyModel;
+        this.fields = ImmutableList.copyOf(fieldModelList);
     }
 
-    public void addField(Field field) {
+    public MetaModel(Class<?> modelClass) {
+        modelName = findModelName(modelClass);
+
+        List<FieldModel> fieldModels = buildFields(modelClass);
+
+        key = findKey(fieldModels);
+
+        fieldModels.remove(key);
+
+        fields = ImmutableList.copyOf(fieldModels);
+
+    }
+
+    private KeyModel findKey(List<FieldModel> fieldModels) {
+        Iterable<KeyModel> keys = Iterables.filter(fieldModels, KeyModel.class);
+        if (Iterables.size(keys) > 1) {
+            throw new KeyValueMappingException("Model class may only contain one field annotated with @Key.");
+        }
+        if (Iterables.isEmpty(keys)) {
+            throw new KeyValueMappingException("Model class does not contain a field annotated with @Key.");
+        }
+        return keys.iterator().next();
+    }
+
+    private List<FieldModel> buildFields(Class<?> modelClass) {
+        List<FieldModel> fieldModelList = Lists.newArrayList();
+        for (Field field : modelClass.getDeclaredFields()) {
+            FieldModel fieldModel = buildFieldModel(field);
+            if (fieldModel != null) {
+                fieldModelList.add(fieldModel);
+            }
+        }
+        return fieldModelList;
+    }
+
+    public FieldModel buildFieldModel(Field field) {
+        FieldModel fieldModel = null;
         if (field.isAnnotationPresent(Key.class)) {
-            key = buildKey(modelName, field);
+            fieldModel = buildKey(modelName, field);
         } else if (field.isAnnotationPresent(Unmapped.class)) {
             //ignored
         } else {
-            fields.add(buildAttribute(field));
+            fieldModel = buildAttribute(field);
         }
+        return fieldModel;
     }
 
     private AttributeModel buildAttribute(Field field) {
@@ -37,9 +82,6 @@ public class MetaModel {
     }
 
     private KeyModel buildKey(String modelName, Field field) {
-        if (key != null) {
-            throw new KeyValueMappingException("Model class may only contain one field annotated with @Key.");
-        }
         KeyModel keyModel = new KeyModel(this, field);
         SequenceModel sequenceModel;
         if (field.isAnnotationPresent(Sequence.class)) {
@@ -55,5 +97,10 @@ public class MetaModel {
 
     public String getKey(Object obj) {
         return key.key(obj);
+    }
+
+    private String findModelName(Class<?> modelClass) {
+        KeyValueModel annotation = modelClass.getAnnotation(KeyValueModel.class);
+        return annotation.name().isEmpty() ? StringUtils.uncapitalize(modelClass.getSimpleName()) : annotation.name();
     }
 }
