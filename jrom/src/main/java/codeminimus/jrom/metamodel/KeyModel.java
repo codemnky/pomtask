@@ -16,16 +16,8 @@ public class KeyModel extends FieldModel {
         super(keyModel.model, keyModel.field);
     }
 
-    public String key(Object object) {
-        try {
-            return String.format("%s:%s", model.getModelName(), field.get(object));
-        } catch (IllegalAccessException e) {
-            throw Throwables.propagate(e);
-        }
-    }
-
     @Override
-    public Object update(Object obj, StringJedisConnection connection) {
+    public Object update(String key, Object obj, StringJedisConnection connection) {
         try {
             Object value = field.get(obj);
             if (value == null) {
@@ -38,7 +30,7 @@ public class KeyModel extends FieldModel {
     }
 
     @Override
-    public Object create(Object obj, StringJedisConnection connection) {
-        return update(obj, connection);
+    public Object create(String key, Object obj, StringJedisConnection connection) {
+        return update(key, obj, connection);
     }
 }

@@ -3,6 +3,7 @@ package codeminimus.jrom.metamodel;
 
 import codeminimus.jrom.StringJedisConnection;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Throwables;
 
 import java.lang.reflect.Field;
 
@@ -22,7 +23,15 @@ public abstract class FieldModel {
         return field.getName();
     }
 
-    public abstract Object update(Object obj, StringJedisConnection conn);
+    public abstract Object update(String key, Object obj, StringJedisConnection conn);
 
-    public abstract Object create(Object obj, StringJedisConnection connection);
+    public abstract Object create(String key, Object obj, StringJedisConnection connection);
+
+    public final void set(Object object, Object value) {
+        try {
+            field.set(object, value);
+        } catch (IllegalAccessException e) {
+            throw Throwables.propagate(e);
+        }
+    }
 }

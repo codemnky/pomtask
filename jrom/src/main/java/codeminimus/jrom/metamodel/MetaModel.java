@@ -1,54 +1,60 @@
 package codeminimus.jrom.metamodel;
 
-
+import codeminimus.jrom.StringJedisConnection;
 import codeminimus.jrom.annotation.Key;
 import codeminimus.jrom.annotation.KeyValueModel;
 import codeminimus.jrom.annotation.Sequence;
 import codeminimus.jrom.annotation.Unmapped;
 import codeminimus.jrom.exception.KeyValueMappingException;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
-import java.util.List;
+import java.util.Map;
 
-public class MetaModel {
+public class MetaModel<T> {
     @VisibleForTesting
     final String modelName;
     @VisibleForTesting
-    final KeyModel key;
+    final KeyModel keyModel;
     @VisibleForTesting
-    final List<FieldModel> fields;
+    final Map<String, FieldModel> fields;
 
     @VisibleForTesting
-    MetaModel(String modelName, KeyModel keyModel, List<FieldModel> fieldModelList) {
+    MetaModel(String modelName, KeyModel keyModel, Map<String, FieldModel> fieldModelList) {
         this.modelName = modelName;
-        this.key = keyModel;
-        this.fields = ImmutableList.copyOf(fieldModelList);
+        this.keyModel = keyModel;
+        this.fields = ImmutableMap.copyOf(fieldModelList);
     }
 
-    public MetaModel(Class<?> modelClass) {
+    private MetaModel(Class<T> modelClass) {
         if (!modelClass.isAnnotationPresent(KeyValueModel.class)) {
             throw new KeyValueMappingException(String.format("Not a model object: No %s annotation present on class.", KeyValueModel.class.getName()));
         }
 
         modelName = findModelName(modelClass);
 
-        List<FieldModel> fieldModels = buildFields(modelClass);
+        Map<String, FieldModel> fieldModels = buildFields(modelClass);
 
-        key = findKey(fieldModels);
+        keyModel = findKey(fieldModels);
 
-        fieldModels.remove(key);
+        fieldModels.remove(keyModel.fieldName());
 
-        fields = ImmutableList.copyOf(fieldModels);
+        fields = ImmutableMap.copyOf(fieldModels);
 
     }
 
-    private KeyModel findKey(List<FieldModel> fieldModels) {
-        Iterable<KeyModel> keys = Iterables.filter(fieldModels, KeyModel.class);
+    public static <T> MetaModel<T> newMetaModel(Class<T> modelClass) {
+        return new MetaModel<T>(modelClass);
+    }
+
+    private KeyModel findKey(Map<String, FieldModel> fieldModels) {
+        Iterable<KeyModel> keys = Iterables.filter(fieldModels.values(), KeyModel.class);
         if (Iterables.size(keys) > 1) {
             throw new KeyValueMappingException("Model class may only contain one field annotated with @Key.");
         }
@@ -58,12 +64,12 @@ public class MetaModel {
         return keys.iterator().next();
     }
 
-    private List<FieldModel> buildFields(Class<?> modelClass) {
-        List<FieldModel> fieldModelList = Lists.newArrayList();
+    private Map<String, FieldModel> buildFields(Class<?> modelClass) {
+        Map<String, FieldModel> fieldModelList = Maps.newHashMap();
         for (Field field : modelClass.getDeclaredFields()) {
             FieldModel fieldModel = buildFieldModel(field);
             if (fieldModel != null) {
-                fieldModelList.add(fieldModel);
+                fieldModelList.put(fieldModel.fieldName(), fieldModel);
             }
         }
         return fieldModelList;
@@ -100,11 +106,40 @@ public class MetaModel {
     }
 
     public String getKey(Object obj) {
-        return key.key(obj);
+        String keyValue = ConvertUtils.convert(obj);
+        return String.format("%s:%s", getModelName(), keyValue);
     }
 
     private String findModelName(Class<?> modelClass) {
         KeyValueModel annotation = modelClass.getAnnotation(KeyValueModel.class);
         return annotation.name().isEmpty() ? StringUtils.uncapitalize(modelClass.getSimpleName()) : annotation.name();
+    }
+
+    public T create(T object, StringJedisConnection connection) {
+        Map<String, Object> fieldValues = Maps.newHashMap();
+
+        Object keyValue = keyModel.create(null, object, connection);
+        String key = getKey(keyValue);
+        for (FieldModel field : fields.values()) {
+            Object setValue = field.create(key, object, connection);
+            fieldValues.put(field.fieldName(), setValue);
+        }
+        return createNewObject(object, fieldValues, keyValue);
+    }
+
+    @SuppressWarnings("unchecked")
+    private T createNewObject(T object, Map<String, Object> fieldValues, Object keyValue) {
+        try {
+            T createdObject = (T) object.getClass().newInstance();
+            for (Map.Entry<String, Object> entry : fieldValues.entrySet()) {
+                fields.get(entry.getKey()).set(createdObject, entry.getValue());
+            }
+            keyModel.set(createdObject, keyValue);
+            return createdObject;
+        } catch (InstantiationException e) {
+            throw Throwables.propagate(e);
+        } catch (IllegalAccessException e) {
+            throw Throwables.propagate(e);
+        }
     }
 }

@@ -17,13 +17,13 @@ public class AttributeModel extends FieldModel {
     }
 
     @Override
-    public Object update(Object obj, StringJedisConnection conn) {
+    public Object update(String key, Object obj, StringJedisConnection conn) {
         try {
             Object fieldValue = field.get(obj);
 
             if (fieldValue != null) {
                 String storeValue = ConvertUtils.convert(fieldValue);
-                conn.hSet(model.getKey(obj), fieldName(), storeValue);
+                conn.hSet(key, fieldName(), storeValue);
             }
 
             return fieldValue;
@@ -33,8 +33,8 @@ public class AttributeModel extends FieldModel {
     }
 
     @Override
-    public Object create(Object obj, StringJedisConnection connection) {
-        return update(obj, connection);
+    public Object create(String key, Object obj, StringJedisConnection connection) {
+        return update(key, obj, connection);
     }
 
     @Override

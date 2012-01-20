@@ -2,7 +2,6 @@ package codeminimus.jrom.metamodel;
 
 import codeminimus.jrom.StringJedisConnection;
 import codeminimus.jrom.annotation.Attribute;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 
@@ -17,11 +16,6 @@ public class AttributeModelTest {
     private StringJedisConnection connection = mock(StringJedisConnection.class);
     private MetaModel model = mock(MetaModel.class);
 
-    @Before
-    public void setUp() {
-        when(model.getKey(anyObject())).thenReturn(MODEL_KEY);
-    }
-
     @Test
     public void update() throws NoSuchFieldException {
         AttributeModel attribute = new AttributeModel(model, DummyModel.class.getDeclaredField("testField"));
@@ -29,7 +23,7 @@ public class AttributeModelTest {
         DummyModel dummyModel = new DummyModel();
         dummyModel.testField = "help";
 
-        assertThat((String) attribute.update(dummyModel, connection), is("help"));
+        assertThat((String) attribute.update(MODEL_KEY, dummyModel, connection), is("help"));
 
         verify(connection).hSet(MODEL_KEY, "testField", "help");
     }
@@ -41,7 +35,7 @@ public class AttributeModelTest {
         DummyModel dummyModel = new DummyModel();
         dummyModel.testField = null;
 
-        assertThat(attribute.update(dummyModel, connection), is(nullValue()));
+        assertThat(attribute.update(MODEL_KEY, dummyModel, connection), is(nullValue()));
 
         verify(connection, never()).hSet(eq("modelName"), eq("testField"), Matchers.<String>any());
     }
@@ -53,7 +47,7 @@ public class AttributeModelTest {
         DummyModel dummyModel = new DummyModel();
         dummyModel.testField = "help";
 
-        assertThat((String) attribute.create(dummyModel, connection), is("help"));
+        assertThat((String) attribute.create(MODEL_KEY, dummyModel, connection), is("help"));
 
         verify(connection).hSet(MODEL_KEY, "testField", "help");
     }
@@ -65,11 +59,12 @@ public class AttributeModelTest {
         DummyModel dummyModel = new DummyModel();
         dummyModel.namedField = 5;
 
-        assertThat((Integer) attribute.update(dummyModel, connection), is(5));
+        assertThat((Integer) attribute.update(MODEL_KEY, dummyModel, connection), is(5));
 
         verify(connection).hSet(MODEL_KEY, "newName", "5");
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     private class DummyModel {
         private String testField;
         @Attribute(name = "newName")
