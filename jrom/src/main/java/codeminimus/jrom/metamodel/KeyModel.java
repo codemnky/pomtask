@@ -3,6 +3,7 @@ package codeminimus.jrom.metamodel;
 import codeminimus.jrom.StringJedisConnection;
 import codeminimus.jrom.exception.KeyValueMappingException;
 import com.google.common.base.Throwables;
+import org.apache.commons.beanutils.ConvertUtils;
 
 import java.lang.reflect.Field;
 
@@ -23,6 +24,9 @@ public class KeyModel extends FieldModel {
             if (value == null) {
                 throw new KeyValueMappingException("@Key fields may never be null.");
             }
+            String convertedValue = ConvertUtils.convert(value);
+
+            connection.hSet(model.getKey(convertedValue), fieldName(), convertedValue);
             return value;
         } catch (IllegalAccessException e) {
             throw Throwables.propagate(e);

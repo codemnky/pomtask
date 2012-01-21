@@ -15,8 +15,7 @@ import java.lang.reflect.Field;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class MetaModelTest {
     @Rule
@@ -100,16 +99,32 @@ public class MetaModelTest {
     public void save() {
         MetaModel<BasicModel> metaModel = MetaModel.newMetaModel(BasicModel.class);
 
+        when(connection.incr("basicModel:key")).thenReturn(2L);
+
         BasicModel basicModel = new BasicModel();
-        basicModel.key = "here";
         basicModel.field = 12;
 
         BasicModel newModel = metaModel.create(basicModel, connection);
 
-        verify(connection).hSet("basicModel:here", "field", "12");
+        verify(connection).hSet("basicModel:2", "field", "12");
+        verify(connection).hSet("basicModel:2", "key", "2");
 
         assertThat(newModel, is(not(sameInstance(basicModel))));
-        assertThat(newModel, equalTo(basicModel));
+        assertThat(newModel.field, equalTo(12));
+        assertThat(newModel.key, equalTo(2));
+    }
+
+    @Test
+    public void read() {
+        MetaModel<BasicModel> metaModel = MetaModel.newMetaModel(BasicModel.class);
+
+        when(connection.hGet("basicModel:1", "field")).thenReturn("2");
+        when(connection.hGet("basicModel:1", "key")).thenReturn("1");
+
+        BasicModel newModel = metaModel.read("1", connection);
+
+        assertThat(newModel.field, equalTo(2));
+        assertThat(newModel.key, equalTo(1));
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -132,7 +147,8 @@ public class MetaModelTest {
     @KeyValueModel
     public static class BasicModel {
         @Key
-        private String key;
+        @Sequence
+        private int key;
         private int field;
 
         @Override
@@ -142,13 +158,13 @@ public class MetaModelTest {
 
             BasicModel that = (BasicModel) o;
 
-            return field == that.field && !(key != null ? !key.equals(that.key) : that.key != null);
+            return field == that.field && key == that.key;
 
         }
 
         @Override
         public int hashCode() {
-            int result = key != null ? key.hashCode() : 0;
+            int result = key;
             result = 31 * result + field;
             return result;
         }

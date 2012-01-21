@@ -24,18 +24,22 @@ public class MetaModel<T> {
     final KeyModel keyModel;
     @VisibleForTesting
     final Map<String, FieldModel> fields;
+    private final Class<T> modelClass;
 
     @VisibleForTesting
     MetaModel(String modelName, KeyModel keyModel, Map<String, FieldModel> fieldModelList) {
         this.modelName = modelName;
         this.keyModel = keyModel;
         this.fields = ImmutableMap.copyOf(fieldModelList);
+        this.modelClass = null;
     }
 
     private MetaModel(Class<T> modelClass) {
         if (!modelClass.isAnnotationPresent(KeyValueModel.class)) {
             throw new KeyValueMappingException(String.format("Not a model object: No %s annotation present on class.", KeyValueModel.class.getName()));
         }
+
+        this.modelClass = modelClass;
 
         modelName = findModelName(modelClass);
 
@@ -116,21 +120,33 @@ public class MetaModel<T> {
     }
 
     public T create(T object, StringJedisConnection connection) {
-        Map<String, Object> fieldValues = Maps.newHashMap();
 
-        Object keyValue = keyModel.create(null, object, connection);
+        Object keyValue = keyModel.create("", object, connection);
         String key = getKey(keyValue);
+
+        Map<String, Object> fieldValues = Maps.newHashMap();
         for (FieldModel field : fields.values()) {
             Object setValue = field.create(key, object, connection);
             fieldValues.put(field.fieldName(), setValue);
         }
-        return createNewObject(object, fieldValues, keyValue);
+        return createNewObject(fieldValues, keyValue, modelClass);
+    }
+
+    public T read(Object keyValue, StringJedisConnection connection) {
+        String key = getKey(keyValue);
+
+        Map<String, Object> fieldValues = Maps.newHashMap();
+        for (FieldModel field : fields.values()) {
+            Object setValue = field.read(key, connection);
+            fieldValues.put(field.fieldName(), setValue);
+        }
+        return createNewObject(fieldValues, keyValue, modelClass);
     }
 
     @SuppressWarnings("unchecked")
-    private T createNewObject(T object, Map<String, Object> fieldValues, Object keyValue) {
+    private T createNewObject(Map<String, Object> fieldValues, Object keyValue, Class<T> aClass) {
         try {
-            T createdObject = (T) object.getClass().newInstance();
+            T createdObject = aClass.newInstance();
             for (Map.Entry<String, Object> entry : fieldValues.entrySet()) {
                 fields.get(entry.getKey()).set(createdObject, entry.getValue());
             }

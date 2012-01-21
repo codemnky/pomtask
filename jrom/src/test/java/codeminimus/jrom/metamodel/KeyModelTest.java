@@ -14,6 +14,7 @@ import java.lang.reflect.Field;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class KeyModelTest {
     @Rule
@@ -40,6 +41,8 @@ public class KeyModelTest {
         KeyModel model = new KeyModel(this.model, keyField);
 
         assertThat((String) model.update("any", new StringKeyedType("Test"), mockConnection), is("Test"));
+
+        verify(mockConnection).hSet("modelName:Test", "key", "Test");
     }
 
     @Test

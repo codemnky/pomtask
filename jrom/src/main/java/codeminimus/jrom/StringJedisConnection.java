@@ -490,16 +490,16 @@ public class StringJedisConnection {
         return connection.hSetNX(key.getBytes(), field, value);
     }
 
-    public Boolean hDel(String key, byte[] field) {
-        return connection.hDel(key.getBytes(), field);
+    public Boolean hDel(String key, String field) {
+        return connection.hDel(key.getBytes(), field.getBytes());
     }
 
-    public Boolean hExists(String key, byte[] field) {
-        return connection.hExists(key.getBytes(), field);
+    public Boolean hExists(String key, String field) {
+        return connection.hExists(key.getBytes(), field.getBytes());
     }
 
-    public byte[] hGet(String key, byte[] field) {
-        return connection.hGet(key.getBytes(), field);
+    public String hGet(String key, String field) {
+        return new String(connection.hGet(key.getBytes(), field.getBytes()));
     }
 
     public Map<byte[], byte[]> hGetAll(String key) {
