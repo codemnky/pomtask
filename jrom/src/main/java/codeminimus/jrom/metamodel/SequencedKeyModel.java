@@ -15,7 +15,7 @@ public class SequencedKeyModel extends KeyModel {
     @Override
     public Object create(String key, Object obj, StringJedisConnection connection) {
         long next = sequenceModel.next(connection);
-        connection.hSet(model.getKey(next), fieldName(), Long.toString(next));
+        connection.hSet(model.buildKey(next), fieldName(), Long.toString(next));
         return next;
     }
 }

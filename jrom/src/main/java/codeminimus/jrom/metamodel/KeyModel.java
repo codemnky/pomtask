@@ -28,15 +28,20 @@ public class KeyModel extends FieldModel {
     }
 
     private Object storeValue(Object obj, StringJedisConnection connection) {
-        try {
-            Object value = field.get(obj);
-            if (value == null) {
-                throw new KeyValueMappingException("@Key fields may never be null.");
-            }
-            String convertedValue = ConvertUtils.convert(value);
+        Object value = value(obj);
+        if (value == null) {
+            throw new KeyValueMappingException("@Key fields may never be null.");
+        }
+        String convertedValue = ConvertUtils.convert(value);
 
-            connection.hSet(model.getKey(convertedValue), fieldName(), convertedValue);
-            return value;
+        connection.hSet(model.buildKey(convertedValue), fieldName(), convertedValue);
+
+        return value;
+    }
+
+    public Object value(Object model) {
+        try {
+            return field.get(model);
         } catch (IllegalAccessException e) {
             throw Throwables.propagate(e);
         }

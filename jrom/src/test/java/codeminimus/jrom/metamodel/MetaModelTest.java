@@ -58,7 +58,7 @@ public class MetaModelTest {
 
     @Test
     public void key_String() throws NoSuchFieldException {
-        String key = builder.getKey("apple");
+        String key = builder.buildKey("apple");
 
         assertThat(key, is("modelName:apple"));
     }
@@ -125,6 +125,30 @@ public class MetaModelTest {
 
         assertThat(newModel.field, equalTo(2));
         assertThat(newModel.key, equalTo(1));
+    }
+
+    @Test
+    public void delete() {
+        MetaModel<BasicModel> metaModel = MetaModel.newMetaModel(BasicModel.class);
+
+        when(connection.del("basicModel:1")).thenReturn(1L);
+
+        BasicModel basicModel = new BasicModel();
+        basicModel.key = 1;
+
+        boolean delete = metaModel.delete(basicModel, connection);
+
+        assertThat(delete, is(true));
+    }
+
+    @Test
+    public void key() {
+        MetaModel<BasicModel> metaModel = MetaModel.newMetaModel(BasicModel.class);
+
+        BasicModel basicModel = new BasicModel();
+        basicModel.key = 1;
+
+        assertThat(metaModel.key(basicModel), is("basicModel:1"));
     }
 
     @SuppressWarnings("UnusedDeclaration")

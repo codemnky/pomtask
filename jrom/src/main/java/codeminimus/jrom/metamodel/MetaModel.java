@@ -109,20 +109,15 @@ public class MetaModel<T> {
         return modelName;
     }
 
-    public String getKey(Object obj) {
-        String keyValue = ConvertUtils.convert(obj);
+    public String buildKey(Object keyObject) {
+        String keyValue = ConvertUtils.convert(keyObject);
         return String.format("%s:%s", getModelName(), keyValue);
-    }
-
-    private String findModelName(Class<?> modelClass) {
-        KeyValueModel annotation = modelClass.getAnnotation(KeyValueModel.class);
-        return annotation.name().isEmpty() ? StringUtils.uncapitalize(modelClass.getSimpleName()) : annotation.name();
     }
 
     public T create(T object, StringJedisConnection connection) {
 
         Object keyValue = keyModel.create("", object, connection);
-        String key = getKey(keyValue);
+        String key = buildKey(keyValue);
 
         Map<String, Object> fieldValues = Maps.newHashMap();
         for (FieldModel field : fields.values()) {
@@ -133,7 +128,7 @@ public class MetaModel<T> {
     }
 
     public T read(Object keyValue, StringJedisConnection connection) {
-        String key = getKey(keyValue);
+        String key = buildKey(keyValue);
 
         Map<String, Object> fieldValues = Maps.newHashMap();
         for (FieldModel field : fields.values()) {
@@ -141,6 +136,15 @@ public class MetaModel<T> {
             fieldValues.put(field.fieldName(), setValue);
         }
         return createNewObject(fieldValues, keyValue, modelClass);
+    }
+
+    public boolean delete(T object, StringJedisConnection connection) {
+        return connection.del(key(object)) == 1;
+    }
+
+    public String key(T object) {
+        Object keyValue = keyModel.value(object);
+        return buildKey(keyValue);
     }
 
     @SuppressWarnings("unchecked")
@@ -157,5 +161,10 @@ public class MetaModel<T> {
         } catch (IllegalAccessException e) {
             throw Throwables.propagate(e);
         }
+    }
+
+    private String findModelName(Class<?> modelClass) {
+        KeyValueModel annotation = modelClass.getAnnotation(KeyValueModel.class);
+        return annotation.name().isEmpty() ? StringUtils.uncapitalize(modelClass.getSimpleName()) : annotation.name();
     }
 }

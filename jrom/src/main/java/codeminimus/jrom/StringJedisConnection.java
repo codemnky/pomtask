@@ -110,8 +110,8 @@ public class StringJedisConnection {
         return connection.ping();
     }
 
-    public Long del(byte[]... keys) {
-        return connection.del(keys);
+    public Long del(String... keys) {
+        return connection.del(stringArrayToByteArray(keys));
     }
 
     public void discard() {
@@ -548,5 +548,14 @@ public class StringJedisConnection {
 
     public void subscribe(MessageListener listener, byte[]... channels) {
         connection.subscribe(listener, channels);
+    }
+
+    private byte[][] stringArrayToByteArray(String[] keys) {
+        byte[][] byteKeys = new byte[keys.length][];
+        for (int i = 0; i < keys.length; i++) {
+            String key = keys[i];
+            byteKeys[i] = key.getBytes();
+        }
+        return byteKeys;
     }
 }
