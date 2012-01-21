@@ -19,6 +19,15 @@ public class KeyModel extends FieldModel {
 
     @Override
     public Object update(String key, Object obj, StringJedisConnection connection) {
+        return storeValue(obj, connection);
+    }
+
+    @Override
+    public Object create(String key, Object obj, StringJedisConnection connection) {
+        return storeValue(obj, connection);
+    }
+
+    private Object storeValue(Object obj, StringJedisConnection connection) {
         try {
             Object value = field.get(obj);
             if (value == null) {
@@ -31,10 +40,5 @@ public class KeyModel extends FieldModel {
         } catch (IllegalAccessException e) {
             throw Throwables.propagate(e);
         }
-    }
-
-    @Override
-    public Object create(String key, Object obj, StringJedisConnection connection) {
-        return update(key, obj, connection);
     }
 }
