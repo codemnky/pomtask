@@ -41,8 +41,6 @@ public class KeyModelTest {
         KeyModel model = new KeyModel(this.model, keyField);
 
         assertThat((String) model.update("any", new StringKeyedType("Test"), mockConnection), is("Test"));
-
-        verify(mockConnection).hSet("modelName:Test", "key", "Test");
     }
 
     @Test
@@ -59,6 +57,8 @@ public class KeyModelTest {
         KeyModel model = new KeyModel(this.model, keyField);
 
         assertThat((String) model.create("any", new StringKeyedType("Test"), mockConnection), is("Test"));
+
+        verify(mockConnection).hSet("modelName:Test", "key", "Test");
     }
 
     @Test

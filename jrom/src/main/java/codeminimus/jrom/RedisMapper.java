@@ -15,9 +15,18 @@ public class RedisMapper {
     }
 
     public <T> T save(T object) {
-        MetaModel model = getMetaModel(object.getClass());
-        model.create(object, connection);
-        return null;
+        MetaModel<T> model = getMetaModel(object.getClass());
+        return model.create(object, connection);
+    }
+
+    public <T> T update(T object) {
+        MetaModel<T> model = getMetaModel(object.getClass());
+        return model.update(object, connection);
+    }
+
+    public <T> T read(Object key, Class<T> type) {
+        MetaModel<T> model = getMetaModel(type);
+        return model.read(key, connection);
     }
 
     private MetaModel getMetaModel(Class<?> modelClass) {

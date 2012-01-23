@@ -11,8 +11,8 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.convert.StringConvert;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -110,18 +110,29 @@ public class MetaModel<T> {
     }
 
     public String buildKey(Object keyObject) {
-        String keyValue = ConvertUtils.convert(keyObject);
+        String keyValue = StringConvert.INSTANCE.convertToString(keyObject);
         return String.format("%s:%s", getModelName(), keyValue);
     }
 
     public T create(T object, StringJedisConnection connection) {
-
         Object keyValue = keyModel.create("", object, connection);
         String key = buildKey(keyValue);
 
         Map<String, Object> fieldValues = Maps.newHashMap();
         for (FieldModel field : fields.values()) {
             Object setValue = field.create(key, object, connection);
+            fieldValues.put(field.fieldName(), setValue);
+        }
+        return createNewObject(fieldValues, keyValue, modelClass);
+    }
+
+    public T update(T object, StringJedisConnection connection) {
+        Object keyValue = keyModel.update("", object, connection);
+        String key = buildKey(keyValue);
+
+        Map<String, Object> fieldValues = Maps.newHashMap();
+        for (FieldModel field : fields.values()) {
+            Object setValue = field.update(key, object, connection);
             fieldValues.put(field.fieldName(), setValue);
         }
         return createNewObject(fieldValues, keyValue, modelClass);
@@ -162,6 +173,7 @@ public class MetaModel<T> {
             throw Throwables.propagate(e);
         }
     }
+
 
     private String findModelName(Class<?> modelClass) {
         KeyValueModel annotation = modelClass.getAnnotation(KeyValueModel.class);

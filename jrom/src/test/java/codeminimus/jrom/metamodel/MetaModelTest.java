@@ -96,7 +96,7 @@ public class MetaModelTest {
     }
 
     @Test
-    public void save() {
+    public void create() {
         MetaModel<BasicModel> metaModel = MetaModel.newMetaModel(BasicModel.class);
 
         when(connection.incr("basicModel:key")).thenReturn(2L);
@@ -112,6 +112,24 @@ public class MetaModelTest {
         assertThat(newModel, is(not(sameInstance(basicModel))));
         assertThat(newModel.field, equalTo(12));
         assertThat(newModel.key, equalTo(2));
+    }
+
+    @Test
+    public void update() {
+        MetaModel<BasicModel> metaModel = MetaModel.newMetaModel(BasicModel.class);
+
+        BasicModel basicModel = new BasicModel();
+        basicModel.key = 5;
+        basicModel.field = 12;
+
+        BasicModel newModel = metaModel.update(basicModel, connection);
+
+        verify(connection).hSet("basicModel:5", "field", "12");
+        verify(connection, never()).hSet("basicModel:5", "key", "5");
+
+        assertThat(newModel, is(not(sameInstance(basicModel))));
+        assertThat(newModel.field, equalTo(12));
+        assertThat(newModel.key, equalTo(5));
     }
 
     @Test

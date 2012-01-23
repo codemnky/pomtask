@@ -5,6 +5,7 @@ import codeminimus.jrom.StringJedisConnection;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import org.apache.commons.beanutils.ConvertUtils;
+import org.joda.convert.StringConvert;
 
 import java.lang.reflect.Field;
 
@@ -30,7 +31,7 @@ public abstract class FieldModel {
 
     public Object read(String key, StringJedisConnection connection) {
         String value = connection.hGet(key, fieldName());
-        return ConvertUtils.convert(value, field.getType());
+        return StringConvert.INSTANCE.convertFromString(field.getType(), value);
     }
 
     public final void set(Object object, Object value) {
